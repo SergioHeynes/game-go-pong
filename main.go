@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -17,6 +18,8 @@ type Paddle struct {
 var screen tcell.Screen
 var player1 *Paddle
 var player2 *Paddle
+
+var cnt int
 
 func PrintStr(row, col int, str string) {
 	for _, c := range str {
@@ -37,6 +40,7 @@ func Print(row, col, width, height int, ch rune) {
 
 func drawState() {
 	screen.Clear()
+	Print(5, 3, 1, 1, rune(cnt+'0'))
 	Print(player1.row, player1.col, player1.width, player1.height, PaddleSymbol)
 	Print(player2.row, player2.col, player2.width, player2.height, PaddleSymbol)
 	screen.Show()
@@ -47,26 +51,33 @@ func main() {
 
 	InitScreen()
 	InitGameState()
-
-	drawState()
+	InitUserInput()
 
 	for {
-		switch ev := screen.PollEvent().(type) {
-		case *tcell.EventKey:
-			if ev.Rune() == 'q' {
-				screen.Fini()
-				os.Exit(0)
-			} else if ev.Rune() == 'w' {
-				// TODO:
-				// player1.row--
-			} else if ev.Rune() == 's' {
-				// TODO:
-			} else if ev.Key() == tcell.KeyUp {
-				// TODO:
-			} else if ev.Key() == tcell.KeyDown {
-				// TODO:
-			}
-		}
+		cnt++
+
+		drawState()
+		time.Sleep(50 * time.Millisecond)
+
+		// switch ev := screen.PollEvent().(type) {
+		// case *tcell.EventKey:
+		// 	if ev.Rune() == 'q' {
+		// 		screen.Fini()
+		// 		os.Exit(0)
+		// 	} else if ev.Rune() == 'w' {
+		// 		// TODO:
+		// 		player1.row--
+		// 	} else if ev.Rune() == 's' {
+		// 		// TODO:
+		// 		player1.row++
+		// 	} else if ev.Key() == tcell.KeyUp {
+		// 		// TODO:
+		// 		player2.row--
+		// 	} else if ev.Key() == tcell.KeyDown {
+		// 		// TODO:
+		// 		player2.row++
+		// 	}
+		// }
 	}
 }
 
@@ -86,6 +97,15 @@ func InitScreen() {
 		Background(tcell.ColorBlack).
 		Foreground(tcell.ColorWhite)
 	screen.SetStyle(defStyle)
+}
+
+func InitUserInput() {
+	for {
+		switch screen.PollEvent().(type) {
+		case *tcell.EventKey:
+			// TODO
+		}
+	}
 }
 
 func InitGameState() {
