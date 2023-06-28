@@ -26,6 +26,7 @@ var player1Paddle *GameObject
 var player2Paddle *GameObject
 var ball *GameObject
 var debugLog string
+var isGamePaused bool
 
 var gameObjects []*GameObject
 
@@ -41,7 +42,7 @@ func main() {
 		updateState()
 		drawState()
 
-		time.Sleep(75 * time.Millisecond)
+		time.Sleep(90 * time.Millisecond)
 
 	}
 }
@@ -100,6 +101,9 @@ func InitGameState() {
 }
 
 func drawState() {
+	if isGamePaused {
+		return
+	}
 	screen.Clear()
 	PrintString(0, 0, debugLog)
 	for _, obj := range gameObjects {
@@ -113,7 +117,25 @@ func CollidesWithWall(obj *GameObject) bool {
 	return obj.row+obj.velRow < 0 || obj.row+obj.velRow >= screenHeight
 }
 
+func CollidesWithPaddle(ball *GameObject, paddle *GameObject) bool {
+	var collidesOnColumn bool
+
+	if ball.col < paddle.col {
+		collidesOnColumn = ball.col+ball.velCol >= paddle.col
+	} else {
+		collidesOnColumn = ball.col+ball.velCol <= paddle.col
+	}
+
+	return collidesOnColumn &&
+		ball.row >= paddle.row &&
+		ball.row < paddle.row+paddle.height
+
+}
+
 func updateState() {
+	if isGamePaused {
+		return
+	}
 	for i := range gameObjects {
 		gameObjects[i].row += gameObjects[i].velRow
 		gameObjects[i].col += gameObjects[i].velCol
@@ -121,6 +143,10 @@ func updateState() {
 
 	if CollidesWithWall(ball) {
 		ball.velRow = -ball.velRow
+	}
+
+	if CollidesWithPaddle(ball, player1Paddle) || CollidesWithPaddle(ball, player2Paddle) {
+		ball.velCol = -ball.velCol
 	}
 
 }
@@ -149,6 +175,8 @@ func HandleUserInput(key string) {
 		player2Paddle.row--
 	} else if key == "Down" && player2Paddle.row+player2Paddle.height < screenHeight {
 		player2Paddle.row++
+	} else if key == "Rune[p]" {
+		isGamePaused = !isGamePaused
 	}
 }
 
