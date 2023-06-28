@@ -37,7 +37,7 @@ func main() {
 	InitGameState()
 	inputChan := InitUserInput()
 
-	for {
+	for !isGameOver() {
 		HandleUserInput(ReadInput(inputChan))
 		updateState()
 		drawState()
@@ -45,6 +45,15 @@ func main() {
 		time.Sleep(90 * time.Millisecond)
 
 	}
+
+	screenWidth, screenHeight := screen.Size()
+	winner := GetWinner()
+	PrintStringCenter(screenHeight/2-1, screenWidth/2, "Game Over")
+	PrintStringCenter(screenHeight/2, screenWidth/2, fmt.Sprintf("%s wins...", winner))
+	screen.Show()
+
+	time.Sleep(3 * time.Second)
+	screen.Fini()
 }
 
 func InitScreen() {
@@ -132,6 +141,22 @@ func CollidesWithPaddle(ball *GameObject, paddle *GameObject) bool {
 
 }
 
+func isGameOver() bool {
+	return GetWinner() != ""
+}
+
+func GetWinner() string {
+	screenWidth, _ := screen.Size()
+	if ball.col < 0 {
+		return "Player 1"
+	} else if ball.col >= screenWidth {
+		return "Player 2"
+	} else {
+		return ""
+	}
+
+}
+
 func updateState() {
 	if isGamePaused {
 		return
@@ -178,6 +203,11 @@ func HandleUserInput(key string) {
 	} else if key == "Rune[p]" {
 		isGamePaused = !isGamePaused
 	}
+}
+
+func PrintStringCenter(row, col int, str string) {
+	col = col - len(str)/2
+	PrintString(row, col, str)
 }
 
 func PrintString(row, col int, str string) {
